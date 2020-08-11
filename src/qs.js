@@ -1,5 +1,5 @@
 import _debug from 'debug';
-const debug = _debug('yhqs:qs');
+const debug = _debug('yh:qs:qs');
 import qs from 'qs';
 import type from './type';
 import memoize from 'lodash/memoize';

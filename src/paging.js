@@ -1,5 +1,5 @@
 import _debug from 'debug';
-const debug = _debug('yhqs:paging');
+const debug = _debug('yh:qs:paging');
 import type from './type';
 
 /**

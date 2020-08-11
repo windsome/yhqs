@@ -1,5 +1,5 @@
 import _debug from 'debug';
-const debug = _debug('yhqs:key');
+const debug = _debug('yh:qs:key');
 import memoize from 'lodash/memoize';
 import stringify from 'json-stable-stringify';
 
