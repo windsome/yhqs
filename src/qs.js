@@ -157,15 +157,8 @@ export function generate(query = null) {
    * 用page分页: opts = {sort: null, populate: null, limit: null, page: -1}
    * 用pagination分页: opts = {sort: null, populate: null, limit: null, pagination: null}
    */
-  let {
-    _sort,
-    _select,
-    _populates,
-    _limit,
-    _pagination,
-    _page,
-    ...where
-  } = query || {};
+  let { _sort, _select, _populates, _limit, _pagination, _page, ...where } =
+    query || {};
 
   let args = { ...where };
 
@@ -179,7 +172,7 @@ export function generate(query = null) {
   if (bPagination) args = { ...args, _pagination };
   else if (bPage) args = { ...args, _page };
 
-  let str = qs.stringify(args,{sort: alphabeticalSort});
+  let str = qs.stringify(args, { sort: alphabeticalSort });
   return str;
 }
 

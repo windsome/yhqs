@@ -35,7 +35,6 @@
   "author": "windsome.feng",
   "license": "ISC",
   "dependencies": {
-    "babel-runtime": "^6.26.0",
     "debug": "^4.1.1",
     "isomorphic-fetch": "^2.2.1",
     "json-stable-stringify": "^1.0.1",
