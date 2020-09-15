@@ -103,7 +103,7 @@ export function parse(qstr) {
 export const memParse = memoize(parse);
 
 /**
- * 将字符串值做转换,处理$regex-/$date-/$int-/$float-打头的字符串值.
+ * 将字符串值做转换,处理$regex-/$date-/$number-/$bool-打头的字符串值.
  * 一般一级查询字段不需要做转化,只有是mix类型的字段,不知道子字段类型时才需要.
  * {'gstat.updatedAt':{'$gt':'$date-'+dateWeekBegin}}
  * {'gstat.week':{'$gt':'$int-'+0}}
@@ -121,12 +121,14 @@ function doValueTransform(where) {
     } else if (where.startsWith('$date-')) {
       where = where.substring('$date-'.length);
       return new Date(where);
-    } else if (where.startsWith('$int-')) {
-      where = where.substring('$int-'.length);
-      return parseInt(where);
-    } else if (where.startsWith('$float-')) {
-      where = where.substring('$float-'.length);
-      return parseFloat(where);
+    } else if (where.startsWith('$number-')) {
+      where = where.substring('$number-'.length);
+      return Number(where);
+    } else if (where.startsWith('$bool-')) {
+      where = where.substring('$bool-'.length);
+      where = where.toLowerCase();
+      if (where == 'false') return false;
+      else return true;
     } else {
       return where;
     }
@@ -150,6 +152,48 @@ function doValueTransform(where) {
   }
 }
 
+/**
+ * 将字符串值做转换,将regex/date/number/bool转换成$regex-/$date-/$number-/$bool-打头的字符串值.
+ * 一般一级查询字段不需要做转化,只有是mix类型的字段,不知道子字段类型时才需要.
+ * {'gstat.updatedAt':{'$gt':'$date-'+dateWeekBegin}}
+ * {'gstat.week':{'$gt':'$int-'+0}}
+ * {'gstat.week':{'$gt':'$float-'+0}}
+ * @param {string} where
+ */
+function doValueTransformReverse(where) {
+  let typewhere = type(where);
+  // debug('doValueTransformReverse ' + typewhere, JSON.stringify(where));
+  if (typewhere === 'regexp') {
+    return '$regex-'+where.toString();
+  } else if (typewhere === 'date') {
+    return '$date-'+where.toString();
+  } else if (typewhere === 'number') {
+    return '$number-'+where.toString();
+  } else if (typewhere === 'boolean') {
+    return '$bool-'+where.toString();
+  } else if (typewhere === 'object') {
+    let dest = {};
+    let props = Object.getOwnPropertyNames(where);
+    for (let i = 0; i < props.length; i++) {
+      let name = props[i];
+      let value = where[name];
+      dest[name] = doValueTransformReverse(value);
+    }
+    return dest;
+  } else if (typewhere === 'array') {
+    let dest = [];
+    for (let i = 0; i < where.length; i++) {
+      dest.push(doValueTransformReverse(where[i]));
+    }
+    return dest;
+  } else if (typewhere === 'string') {
+    return where;
+  } else {
+    debug('warning! not support:'+typewhere, where);
+    return where;
+  }
+}
+
 export function generate(query = null) {
   /**
    * 查询关键参数: where查询条件, sort排序, populate扩展字段, limit每页条数, regex是否支持正则
@@ -160,8 +204,9 @@ export function generate(query = null) {
   let { _sort, _select, _populates, _limit, _pagination, _page, ...where } =
     query || {};
 
-  let args = { ...where };
+  where = doValueTransformReverse(where);
 
+  let args = { ...where };
   if (_sort) args = { ...args, _sort };
   if (_select) args = { ...args, _select };
   if (_populates) args = { ...args, _populates };
