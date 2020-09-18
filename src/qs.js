@@ -130,6 +130,8 @@ function doValueTransform(where) {
       where = where.toLowerCase();
       if (where == 'false') return false;
       else return true;
+    } else if (where.startsWith('$null-')) {
+      return null;
     } else {
       return where;
     }
@@ -173,6 +175,7 @@ function doValueTransformReverse(where) {
   } else if (typewhere === 'boolean') {
     return '$bool-'+where.toString();
   } else if (typewhere === 'object') {
+    if (where === null) return '$null-null';
     let dest = {};
     let props = Object.getOwnPropertyNames(where);
     for (let i = 0; i < props.length; i++) {
