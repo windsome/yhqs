@@ -174,8 +174,9 @@ function doValueTransformReverse(where) {
     return '$number-'+where.toString();
   } else if (typewhere === 'boolean') {
     return '$bool-'+where.toString();
+  } else if (typewhere === 'null') {
+    return '$null-null';
   } else if (typewhere === 'object') {
-    if (where === null) return '$null-null';
     let dest = {};
     let props = Object.getOwnPropertyNames(where);
     for (let i = 0; i < props.length; i++) {
