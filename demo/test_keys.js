@@ -1,25 +1,17 @@
 // DEST=dev DEBUG="app:*" node ./test_qs.js
 require('babel-register');
-let _key = require('../src/key').default;
-let qs = require('../src/qs');
-let genNextPagination = require('../src/paging').default;
-let parseQueryString = qs.default;
-let genQs = qs.memGenerate;
+let _key = require('../src/key')._memkey;
+let _parseKey = require('../src/key')._memParseKey;
 
-function testParse(arr) {
+function testGenParse(arr) {
   for (let i = 0; i < arr.length; i++) {
     let args = arr[i];
     let key = _key(args);
-    let strArgs = genQs(args);
-    let strArgsDecoded = decodeURIComponent(strArgs);
-    let parsedArgs = parseQueryString(strArgs);
     console.log({
       i,
       args,
       key,
-      // strArgs,
-      strArgsDecoded,
-      parsedArgs: JSON.stringify(parsedArgs)
+      parsedArgs: _parseKey(key)
     });
     // console.log({ i, args, strArgs, strArgsDecoded, parsedArgs });
     console.log('');
@@ -114,97 +106,8 @@ Promise.resolve(1)
         ]
       }
     ];
-    testParse(argsArr);
+    testGenParse(argsArr);
     return true;
-  })
-  .then(ret => {
-    let arrVideosPage = [
-      // page翻页方式查询视频列表
-      {
-        // 第一次开始查询视频列表
-        type: '视频',
-        _limit: 10,
-        _page: 0
-      },
-      {
-        // 刷新数据列表
-        type: '视频',
-        _limit: 10,
-        _page: -1
-      },
-      {
-        // 查第1页的数据
-        type: '视频',
-        _limit: 10,
-        _page: 1
-      }
-    ];
-    testParse(arrVideosPage);
-    return true;
-  })
-  .then(ret => {
-    let arrVideosPagination = [
-      // page翻页方式查询视频列表
-      {
-        // 第一次开始查询视频列表
-        type: '视频',
-        _limit: 10,
-        _sort: { createdAt: -1, updatedAt: -1 },
-        _pagination: {},
-        _page: 0
-      },
-      {
-        // 刷新数据列表
-        type: '视频',
-        _limit: 10,
-        _sort: { createdAt: -1, updatedAt: -1 },
-        _pagination: {},
-        _page: -1
-      },
-      {
-        // 查第1页的数据
-        type: '视频',
-        _limit: 10,
-        _sort: { createdAt: -1, updatedAt: -1 },
-        _pagination: {
-          createdAt: {
-            $lt: '2018-12-18T14:38:03.291Z'
-          }
-        },
-        _page: 1
-      }
-    ];
-    testParse(arrVideosPagination);
-    return true;
-  })
-  .then(ret => {
-    console.log('测试获得分页数据');
-    let items = [
-      {
-        _id: '5b986eb9b4f64c0005f8d659',
-        city: 'beijing',
-        cityname: '北京',
-        desc: {
-          count: 10,
-          size: 100
-        },
-        createdAt: '2018-09-12T01:41:13.645Z',
-        updatedAt: '2018-09-12T01:41:13.645Z'
-      }
-    ];
-    let sorts = [
-      { createdAt: -1 },
-      { updatedAt: -1 },
-      { 'desc.count': -1 },
-      { 'desc.count': -1, createdAt: 1 }
-    ];
-
-    for (let i = 0; i < sorts.length; i++) {
-      let sort = sorts[i];
-      let pagination = genNextPagination(items[0], sort);
-      console.log({ i, sort, pagination });
-      console.log('');
-    }
   })
   .then(ret => {
     console.log('测试结束');
