@@ -117,7 +117,9 @@ function doValueTransform(where) {
     if (where.startsWith('$regex-')) {
       where = where.substring('$regex-'.length);
       // const reg = new RegExp(where, 'i');
-      const reg = new RegExp(where);
+      let parts = /\/(.*)\/(.*)/.exec(where);
+      let reg = new RegExp(parts[1], parts[2]);
+      // const reg = new RegExp(where);
       return reg;
     } else if (where.startsWith('$date-')) {
       where = where.substring('$date-'.length);
