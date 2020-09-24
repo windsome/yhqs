@@ -2,6 +2,7 @@ import _debug from 'debug';
 const debug = _debug('yh:qs:key');
 import memoize from 'lodash/memoize';
 import stringify from 'json-stable-stringify';
+import type from './type';
 
 // Object.defineProperty(RegExp.prototype, "toJSON", {
 //   value: RegExp.prototype.toString
@@ -15,11 +16,13 @@ function replacer(key, value) {
 }
 
 function reviver(key, value) {
-  if (value.toString().indexOf("__REGEXP ") == 0) {
-    var m = value.split("__REGEXP ")[1].match(/\/(.*)\/(.*)?/);
-    return new RegExp(m[1], m[2] || "");
-  } else
-    return value;
+  if (type(value) === 'string') {
+    if (value.toString().indexOf("__REGEXP ") == 0) {
+      let m = value.split("__REGEXP ")[1].match(/\/(.*)\/(.*)?/);
+      return new RegExp(m[1], m[2] || "");
+    }
+  }
+  return value;
 }
 function stableSort(a, b) {
   return a.key.localeCompare(b.key);
